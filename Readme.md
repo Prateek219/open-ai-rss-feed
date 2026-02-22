@@ -1,11 +1,11 @@
-# 🫀 BolnaPulse
+
 
 A lightweight CLI tool to monitor OpenAI's status feed in real-time and query incident history.
 
 ## Installation
 
 ```bash
-pip install aiohttp feedparser loguru
+pip install -r requirements.txt
 ```
 
 ## Usage
