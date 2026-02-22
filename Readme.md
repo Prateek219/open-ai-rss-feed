@@ -5,7 +5,7 @@ A lightweight CLI tool to monitor OpenAI's status feed in real-time and query in
 ## Installation
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirement.txt
 ```
 
 ## Usage
