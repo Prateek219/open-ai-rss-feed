@@ -7,18 +7,28 @@ import aiohttp
 import feedparser
 from datetime import datetime
 from loguru import logger
-from fastapi import FastAPI  
+from fastapi import FastAPI
+
+# --- 1. FastAPI Instance (Updated for dynamic feed) ---
 app = FastAPI()
 
 @app.get("/")
-def health_check():
-    return {
-        "status": "Operational",
-        "engine": "Bolna Pulse Monitor",
-        "uptime": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    }
+def read_feed():
+    """Returns the live incident feed captured by the monitor."""
+    if os.path.exists("status_history.json"):
+        with open("status_history.json", "r") as f:
+            try:
+                data = json.load(f)
+                return {
+                    "engine": "Bolna Pulse Monitor",
+                    "incident_count": len(data),
+                    "feed": data
+                }
+            except:
+                pass
+    return {"status": "Active", "message": "No incidents recorded yet."}
 
-
+# --- 2. Monitoring Logic ---
 DB_FILE = "status_history.json"
 FEEDS = ["https://status.openai.com/history.atom"]
 
@@ -82,39 +92,23 @@ class BolnaPulse:
                                     "status": status_msg[:200],
                                     "color": self.get_color(entry.get("title"))
                                 }
-                                # Print to terminal
-                                print(f"\n🚨 NEW UPDATE: {data['timestamp']} | {data['title']}")
+                                # Print for local terminal
+                                print(f"[{data['timestamp']}] NEW: {data['title']}")
                                 self._save_to_history(data)
                                 self.seen_ids.add(eid)
                 await asyncio.sleep(60)
 
     def run_cli(self):
-        parser = argparse.ArgumentParser(description="Bolna Status Intelligence CLI")
+        parser = argparse.ArgumentParser(description="Bolna Status CLI")
         subparsers = parser.add_subparsers(dest="command")
-
         subparsers.add_parser("listen", help="Start monitoring")
-        subparsers.add_parser("all", help="Show all incidents")
+        subparsers.add_parser("all", help="Show all history")
         
-        range_p = subparsers.add_parser("range")
-        range_p.add_argument("start")
-        range_p.add_argument("end")
-
-        filter_p = subparsers.add_parser("filter")
-        filter_p.add_argument("color", choices=["green", "yellow", "red"])
-
         args = parser.parse_args()
-
         if args.command == "listen":
             asyncio.run(self.listen())
         elif args.command == "all":
-            for e in self.history: print(f"[{e['timestamp']}] {e['title']} ({e['color'].upper()})")
-        elif args.command == "range":
-            for e in self.history:
-                if int(args.start) <= int(e['date']) <= int(args.end):
-                    print(f"[{e['timestamp']}] {e['title']}")
-        elif args.command == "filter":
-            for e in [x for x in self.history if x['color'] == args.color]:
-                print(f"[{e['timestamp']}] {e['title']}")
+            for e in self.history: print(f"[{e['timestamp']}] {e['title']}")
 
 if __name__ == "__main__":
     BolnaPulse().run_cli()
