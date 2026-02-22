@@ -1,4 +1,4 @@
-# 🫀 BolnaPulse
+
 
 A lightweight CLI tool to monitor OpenAI's status feed in real-time and query incident history.
 
