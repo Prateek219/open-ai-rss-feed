@@ -1,0 +1,21 @@
+# Python Environment
+venv/
+env/
+.env
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Project Specific Data
+status_history.json
+latest_event.json
+events.log
+.streamlit/
+
+# OS Specific
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/

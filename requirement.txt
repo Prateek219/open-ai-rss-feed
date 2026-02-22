@@ -1,0 +1,7 @@
+aiohttp
+feedparser
+loguru
+fastapi
+uvicorn
+streamlit
+pyngrok
